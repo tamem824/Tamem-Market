@@ -56,6 +56,7 @@ class Router
     }
 
     // Route function to handle requests
+    // Route function to handle requests
     public function route($Uri, $Method)
     {
         foreach ($this->routes as $route) {
@@ -67,21 +68,23 @@ class Router
                 }
 
                 // Split controller and method (e.g., 'ProductsController@show')
-                list($controller, $method) = explode('@', $route['controller']);
+                list($controller, $method) = array_pad(explode('@', $route['controller']), 2, 'index');
 
                 // Include the controller file (assuming it's already autoloaded or required)
-                $controller = "HttpControllers\\" . $controller; // Namespace adjustment if needed
-                $instance = new $controller; // Instantiate the controller
-
-                // Call the method on the controller
-                return $instance->$method();
+                try {
+                    $controller = "Http\\Controller\\" . $controller; // Namespace adjustment
+                    $instance = new $controller; // Instantiate the controller
+                    return $instance->$method(); // Call the method
+                } catch (\Error $e) {
+                    echo "خطأ: " . $e->getMessage(); // طباعة أي استثناء
+                    return $this->abort(); // قم بإرجاع صفحة 404
+                }
             }
         }
 
         // If no match, return a 404 page
-        $this->abort();
+        return $this->abort();
     }
-
 
     // Abort function to handle 404 errors
     public function abort($CODE = 404)
