@@ -1,12 +1,13 @@
 <?php
 
 use CORE\Router;
-use HttpControllers\ProductsController;
+use Http\Controller\HomeController;
+use Http\Controller\LoginController;
+use Http\Controller\ProductsController;
 
-$route->route($_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
-$route->get('/home',  'HomeController');
-$route->post('/login', 'LoginController');
-$route->get('/','HomeController');
-$route->get('/products','ProductsController');
-$route->get('/product','ProductsController');
 
+$route->get('/home', 'HomeController@index');
+$route->post('/login', 'LoginController@index');
+$route->get('/', 'HomeController@index');
+$route->get('/products', 'ProductsController@index');
+$route->get('/product', 'ProductsController@index');

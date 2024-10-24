@@ -2,94 +2,99 @@
 
 namespace CORE;
 
+use CORE\Exception;
+use Http\Controller\HomeController;
+
 class Router
 {
-    public $routes = [];
+    protected $routes = [];
 
-
-    public function add($Method, $Uri, $Controller)
+    public function add($method, $uri, $controller)
     {
         $this->routes[] = [
-            'uri' => $Uri,  // Fixed: Keep URI as it is
-            'method' => strtoupper($Method), // Ensure method is uppercase
-            'controller' => $Controller,  // The controller function or name
+            'uri' => $uri,
+            'controller' => $controller,
+            'method' => $method,
             'middleware' => null
         ];
+
         return $this;
     }
 
-    // Define GET request
-    public function get($Uri, $Controller): static
+    public function get($uri, $controller)
     {
-        return $this->add('GET', $Uri, $Controller); // Fixed: Pass Controller
+        return $this->add('GET', $uri, $controller);
     }
 
-    // Define POST request
-    public function post($Uri, $Controller): static
+    public function post($uri, $controller)
     {
-        return $this->add('POST', $Uri, $Controller);
+        return $this->add('POST', $uri, $controller);
     }
 
-    // Define DELETE request
-    public function delete($Uri, $Controller): static
+    public function delete($uri, $controller)
     {
-        return $this->add('DELETE', $Uri, $Controller);
+        return $this->add('DELETE', $uri, $controller);
     }
 
-    // Define PATCH request
-    public function patch($Uri, $Controller): static
+    public function patch($uri, $controller)
     {
-        return $this->add('PATCH', $Uri, $Controller);
+        return $this->add('PATCH', $uri, $controller);
     }
 
-    // Define PUT request
-    public function put($Uri, $Controller): static
+    public function put($uri, $controller)
     {
-        return $this->add('PUT', $Uri, $Controller);
+        return $this->add('PUT', $uri, $controller);
     }
 
-    // Apply middleware to the last defined route
-    public function only($AUTH): static
+    public function only($key)
     {
-        $this->routes[array_key_last($this->routes)]['middleware'] = $AUTH;
+        $this->routes[array_key_last($this->routes)]['middleware'] = $key;
+
         return $this;
     }
 
-    // Route function to handle requests
-    // Route function to handle requests
-    public function route($Uri, $Method)
+    /**
+     * @throws Exception
+     */
+    public function route($uri, $method)
     {
         foreach ($this->routes as $route) {
-            // Match both URI and request method
-            if ($route['uri'] === $Uri && $route['method'] === strtoupper($Method)) {
-                // Check if middleware exists
-                if ($route['middleware']) {
+            if ($route['uri'] === $uri && $route['method'] === strtoupper($method)) {
+                if (!empty($route['middleware'])) {
                     Middleware::resolve($route['middleware']);
                 }
 
-                // Split controller and method (e.g., 'ProductsController@show')
-                list($controller, $method) = array_pad(explode('@', $route['controller']), 2, 'index');
+                [$controller, $method] = explode('@', $route['controller']);
+                $controller = 'Http\\Controller\\' . $controller;
 
-                // Include the controller file (assuming it's already autoloaded or required)
-                try {
-                    $controller = "Http\\Controller\\" . $controller; // Namespace adjustment
-                    $instance = new $controller; // Instantiate the controller
-                    return $instance->$method(); // Call the method
-                } catch (\Error $e) {
-                    echo "خطأ: " . $e->getMessage(); // طباعة أي استثناء
-                    return $this->abort(); // قم بإرجاع صفحة 404
+                if (class_exists($controller)) {
+                    $controllerInstance = new $controller;
+
+                    if (method_exists($controllerInstance, $method)) {
+                        return call_user_func([$controllerInstance, $method]);
+                    } else {
+                        throw new Exception("Method $method not found in controller $controller.");
+                    }
+                } else {
+                    throw new Exception("Controller $controller not found.");
                 }
             }
         }
 
-        // If no match, return a 404 page
-        return $this->abort();
+        throw new Exception("No route found for $uri with method $method.");
     }
 
-    // Abort function to handle 404 errors
-    public function abort($CODE = 404)
+    public function previousUrl()
     {
-        http_response_code($CODE);
-        return require BASEPATH('views/' . $CODE . '.php'); // Load 404 page
+        return $_SERVER['HTTP_REFERER'];
+    }
+
+    protected function abort($code = 404)
+    {
+        http_response_code($code);
+
+        require BASEPATH("views/{$code}.php");
+
+        die();
     }
 }
