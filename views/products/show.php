@@ -1,5 +1,5 @@
 <?php require BASEPATH('views/partials/head.php') ?>
-<?php require BASEPATH('views/partials/nav.php') ?>
+<?php require BASEPATH('views/partials/navbar.php') ?>
 <?php require BASEPATH('views/partials/banner.php') ?>
 
 <main>

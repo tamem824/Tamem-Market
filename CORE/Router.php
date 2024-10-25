@@ -3,7 +3,6 @@
 namespace CORE;
 
 use CORE\Exception;
-use Http\Controller\HomeController;
 
 class Router
 {
@@ -56,32 +55,29 @@ class Router
     /**
      * @throws Exception
      */
-    public function route($uri, $method)
-    {
+    public function route($requestUri, $requestMethod) {
         foreach ($this->routes as $route) {
-            if ($route['uri'] === $uri && $route['method'] === strtoupper($method)) {
-                if (!empty($route['middleware'])) {
-                    Middleware::resolve($route['middleware']);
-                }
+            if ($route['uri'] === $requestUri && $route['method'] === $requestMethod) {
+                $controller = $route['controller'];
 
-                [$controller, $method] = explode('@', $route['controller']);
-                $controller = 'Http\\Controller\\' . $controller;
-
-                if (class_exists($controller)) {
-                    $controllerInstance = new $controller;
-
-                    if (method_exists($controllerInstance, $method)) {
-                        return call_user_func([$controllerInstance, $method]);
-                    } else {
-                        throw new Exception("Method $method not found in controller $controller.");
-                    }
+                if (is_callable($controller)) {
+                    return $controller();
                 } else {
-                    throw new Exception("Controller $controller not found.");
+                    list($controllerName, $method) = explode('@', $controller);
+                    return $this->callController($controllerName, $method);
                 }
             }
         }
 
-        throw new Exception("No route found for $uri with method $method.");
+        http_response_code(404);
+        echo "404 Not Found";
+        throw new Exception("No route found for $requestUri with method $requestMethod.");
+    }
+
+    protected function callController($controllerName, $method)
+    {
+        $controller = new $controllerName;
+        $controller->$method();
     }
 
     public function previousUrl()
@@ -92,9 +88,7 @@ class Router
     protected function abort($code = 404)
     {
         http_response_code($code);
-
-        require BASEPATH("views/{$code}.php");
-
+        require BASE_PATH . "views/{$code}.php";
         die();
     }
 }

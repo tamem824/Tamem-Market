@@ -18,7 +18,7 @@ class UsersController extends BaseController
     public function register(): void
     {
         $userData = [
-            'username' => $_POST['username'],
+            'full-name' => $_POST['username'],
             'email' => $_POST['email'],
             'password' => password_hash($_POST['password'], PASSWORD_DEFAULT),
         ];
