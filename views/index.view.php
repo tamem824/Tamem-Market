@@ -14,6 +14,7 @@
             <tr>
                 <th class="px-4 py-2">name</th>
                 <th class="px-4 py-2">Price</th>
+                <th class="px-4 py-2">description</th>
 
             </tr>
             </thead>
@@ -23,6 +24,7 @@
                     <tr>
                         <td class="border px-4 py-2"><?= htmlspecialchars($product['full-name']) ?></td>
                         <td class="border px-4 py-2"><?= htmlspecialchars($product['price']) ?> </td>
+                        <td class="border px-4 py-2"><?= htmlspecialchars($product['description']) ?> </td>
 
 
 

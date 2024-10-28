@@ -4,14 +4,25 @@ namespace CORE;
 
 class App
 {
-    protected static $Container;
-    public static function SetContainer($Container): void
+    protected static $container;
+
+    public static function setContainer($container)
     {
-        static::$Container= $Container;
-    }
-    public static function Container($Container)
-    {
-        return static::$Container;
+        static::$container = $container;
     }
 
+    public static function container()
+    {
+        return static::$container;
+    }
+
+    public static function bind($key, $resolver)
+    {
+        static::container()->bind($key, $resolver);
+    }
+
+    public static function resolve($key)
+    {
+        return static::container()->resolve($key);
+    }
 }

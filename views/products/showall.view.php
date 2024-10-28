@@ -22,10 +22,16 @@
             <?php if (!empty($products)): ?>
                 <?php foreach ($products as $product): ?>
                     <tr>
-                        <td class="border px-4 py-2"><?= htmlspecialchars($product['name']) ?></td>
+                        <td class="border px-4 py-2"><?= htmlspecialchars($product['full_name']) ?></td>
                         <td class="border px-4 py-2"><?= htmlspecialchars($product['price']) ?> </td>
 
 
+
+                        <td class="border px-4 py-2">
+                            <a href="/products/show?id=<?= $product['id'] ?>" class="text-blue-500 underline">
+                                <?= htmlspecialchars($product['full_name']) ?>
+                            </a>
+                        </td>
 
                     </tr>
                 <?php endforeach; ?>

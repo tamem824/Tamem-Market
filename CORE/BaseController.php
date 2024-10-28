@@ -1,10 +1,16 @@
 <?php
 
 namespace CORE;
-
+use CORE\Database;
 class BaseController
 {
+    public $DB;
+    public function __construct()
+    {
+        $this->DB = App::resolve(Database::class);
 
+
+    }
    protected function view($viewName,$Attributes=[]): void
    {
         extract($Attributes);

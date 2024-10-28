@@ -2,7 +2,7 @@
 
 namespace CORE;
 
-use CORE\Exception;
+use CORE\ValidationException;
 
 class Router
 {
@@ -53,7 +53,7 @@ class Router
     }
 
     /**
-     * @throws Exception
+     * @throws ValidationException
      */
     public function route($requestUri, $requestMethod) {
         foreach ($this->routes as $route) {
@@ -71,7 +71,7 @@ class Router
 
         http_response_code(404);
         echo "404 Not Found";
-        throw new Exception("No route found for $requestUri with method $requestMethod.");
+        throw new ValidationException("No route found for $requestUri with method $requestMethod.");
     }
 
     protected function callController($controllerName, $method)

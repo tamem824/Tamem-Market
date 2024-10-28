@@ -3,26 +3,19 @@
 namespace Http\Controllers;
 
 use CORE\BaseController;
-use CORE\Database;
 
 class HomeController extends BaseController
 {
-    private $db;
-
-    public function __construct(Database $db)
+    public function __construct()
     {
-        $this->db = $db;
+        parent::__construct();
     }
 
     public function index(): void
     {
 
-        $products = $this->db->query("SELECT * FROM products")->fetchAll();
-
+        $products = $this->DB->query("SELECT * FROM products")->fetchAll();
 
         $this->view('index.view.php', ['products' => $products]);
     }
 }
-
-
-

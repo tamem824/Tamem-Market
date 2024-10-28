@@ -31,15 +31,18 @@ class Database
         $statement->execute($params);
         return $statement;
     }
-
     public function insert($table, $data)
     {
         $columns = implode(", ", array_keys($data));
-        $placeholders = ':' . implode(', :', array_keys($data));
+        $placeholders = implode(", ", array_fill(0, count($data), '?'));
+        $values = array_values($data);
 
-        $query = "INSERT INTO $table ($columns) VALUES ($placeholders)";
-        $this->query($query, $data); // تمرير البيانات
+        $sql = "INSERT INTO $table ($columns) VALUES ($placeholders)";
+        $stmt = $this->connection->prepare($sql);
+        return $stmt->execute($values);
     }
+
+
 
     public function update($table, $data, $conditions)
     {

@@ -2,47 +2,44 @@
 
 namespace Http\Controllers;
 
-
 use CORE\BaseController;
-use CORE\Database;
-
 
 class ProductsController extends BaseController
 {
-    private $db;
+
 
     public function __construct()
     {
-        $this->db = App::Container()->resolve(Database::class);
+        parent::__construct();
     }
 
     public function index(): void
     {
-        $this->view('Controller/products/show');
+        $this->view('products/showall.view.php');
     }
 
     public function showAll(): void
     {
         try {
-            $products = $this->db->query("SELECT * FROM products");
-            $this->view('products/showAll', ['products' => $products]);
+            $products = $this->DB->query("SELECT * FROM products");
+            $this->view('products/showall.view.php', ['products' => $products]);
         } catch (Exception $e) {
             echo "Error fetching products: " . $e->getMessage();
         }
     }
 
-    public function show($id): void
+    public function show($id = null)
     {
-        try {
-            $product = $this->db->query("SELECT * FROM products WHERE id = ?", [$id]);
+        if ($id) {
+            $statement = $this->DB->query("SELECT * FROM products WHERE id = ?", [$id]);
+            $product = $statement->fetch();
+
             if ($product) {
-                $this->view('products/show', ['product' => $product]);
-            } else {
-                echo "Product not found.";
+                $this->view('products/show.view.php', ['product' => $product]);
+                return;
             }
-        } catch (Exception $e) {
-            echo "Error fetching product: " . $e->getMessage();
         }
+        echo "Product not found.";
     }
 
     public function add(): void
@@ -63,7 +60,7 @@ class ProductsController extends BaseController
         ];
 
         try {
-            $this->db->insert('products', $productData);
+            $this->DB->insert('products', $productData);
             echo "Product added successfully.";
         } catch (Exception $e) {
             echo "Error adding product: " . $e->getMessage();
@@ -86,7 +83,7 @@ class ProductsController extends BaseController
         ];
 
         try {
-            $this->db->update('products', $updatedData, ['id' => $id]);
+            $this->DB->update('products', $updatedData, ['id' => $id]);
             echo "Product updated successfully.";
         } catch (Exception $e) {
             echo "Error updating product: " . $e->getMessage();
@@ -102,7 +99,7 @@ class ProductsController extends BaseController
         }
 
         try {
-            $this->db->delete('products', ['id' => $id]);
+            $this->DB->delete('products', ['id' => $id]);
             echo "Product deleted successfully.";
         } catch (Exception $e) {
             echo "Error deleting product: " . $e->getMessage();
@@ -113,7 +110,7 @@ class ProductsController extends BaseController
     private function isProductOwner($productId): bool
     {
 
-        $result = $this->db->query("SELECT user_id FROM products WHERE id = ?", [$productId]);
+        $result = $this->DB->query("SELECT user_id FROM products WHERE id = ?", [$productId]);
         return isset($result) && $result['user_id'] === $_SESSION['user_id'];
     }
 }

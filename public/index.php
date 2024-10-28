@@ -1,20 +1,32 @@
 <?php
 
-use CORE\Database;
 use CORE\Router;
+use CORE\Session;
+use CORE\ValidationException;
 
-const BASE_PATH = __DIR__ . '/../';
+const BASE_PATH = __DIR__.'/../';
+
+session_start();
 
 require BASE_PATH . 'vendor/autoload.php';
-require BASE_PATH . 'CORE/Functions.php';
-
-$config = require BASE_PATH . 'config.php';
-$db = new Database($config['database']);
+require BASE_PATH . 'CORE/functions.php';
+require BASE_PATH . 'bootstrap.php';
 
 $route = new Router();
-require BASE_PATH . 'Routes.php';
+require BASE_PATH . 'routes.php';
 
-$requestUri = $_SERVER['REQUEST_URI'];
-$requestMethod = $_SERVER['REQUEST_METHOD'];
+$uri = parse_url($_SERVER['REQUEST_URI'])['path'];
+$method = $_POST['_method'] ?? $_SERVER['REQUEST_METHOD'];
 
-$route->route($requestUri, $requestMethod);
+try {
+    $route->route($uri, $method);
+} catch (ValidationException $exception) {
+    Session::flash('errors', $exception->errors);
+    Session::flash('old', $exception->old);
+
+    return redirect($route->previousUrl());
+}
+
+Session::unflash();
+
+
