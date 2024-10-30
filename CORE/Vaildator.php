@@ -4,15 +4,18 @@ namespace CORE;
 
 class Validator
 {
-    public static function string($value, $min = 1, $max = INF)
+    public static function string($value, $min = 1, $max = INF): bool
     {
-        $value = trim($value);
+        if (!is_string($value)) {
+            return false;
+        }
 
+        $value = trim($value);
         return strlen($value) >= $min && strlen($value) <= $max;
     }
 
-    public static function email($value)
+    public static function email($value): bool
     {
-        return filter_var($value, FILTER_VALIDATE_EMAIL);
+        return is_string($value) && (bool) filter_var($value, FILTER_VALIDATE_EMAIL);
     }
 }
