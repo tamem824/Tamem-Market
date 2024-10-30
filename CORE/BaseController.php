@@ -17,11 +17,12 @@ class BaseController
         require BASEPATH('views/'.$viewName);
     }
 
-   protected function redirect($Path)
+    protected function redirect($Path)
     {
-        header("location :{$Path}");
+        header("Location: {$Path}");
         exit();
     }
+
     public function isUserLoggedIn(): bool
     {
         return isset($_SESSION['user_id']);

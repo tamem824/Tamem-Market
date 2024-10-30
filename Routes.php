@@ -45,7 +45,7 @@ $route->get('/products/show', function() use ($db) {
 
 
 $route->get('/my-products', function() use ($db) {
-    session_start();
+
     $userId = $_SESSION['user_id'] ?? null;
 
     if ($userId) {
@@ -55,3 +55,6 @@ $route->get('/my-products', function() use ($db) {
         echo "You must be logged in to view your products.";
     }
 });
+$route->post('/logout', function() use ($db) {
+    $out = new UsersController($db);
+    $out->logout();})->only('auth');
