@@ -3,7 +3,9 @@
 use CORE\App;
 use CORE\Database;
 use CORE\Router;
+use Http\Controllers\AboutController;
 use Http\Controllers\HomeController;
+use Http\Controllers\MyproductsController;
 use Http\Controllers\UsersController;
 use Http\Controllers\ProductsController;
 //$db=App::Container(Database::class);
@@ -11,6 +13,10 @@ use Http\Controllers\ProductsController;
 $route->get('/', function() use ($db) {
     $home = new ProductsController($db);
     $home->showAll();
+});
+$route->get('/about', function() {
+    $home = new AboutController();
+    $home->index();
 });
 
 $route->get('/home', function() use ($db) {
@@ -31,30 +37,27 @@ $route->post('/register', function() use ($db) {
     $register = new UsersController($db);
     $register->register();
 })->only('guest');
-;$route->get('/register', function() use ($db) {
+$route->get('/register', function() use ($db) {
     $register = new UsersController($db);
     $register->ViewRegister();
 })->only('guest');
 
 $route->get('/products/show', function() use ($db) {
-    $productId = $_GET['id'] ?? null;
+
     $products = new ProductsController($db);
 
-    $products->show($productId);
-});
+    $products->showAll();});
 
-
-$route->get('/my-products', function() use ($db) {
-
-    $userId = $_SESSION['user_id'] ?? null;
-
-    if ($userId) {
-        $products = new ProductsController($db);
-        $products->showAll($userId);
-    } else {
-        echo "You must be logged in to view your products.";
-    }
-});
 $route->post('/logout', function() use ($db) {
     $out = new UsersController($db);
     $out->logout();})->only('auth');
+$route->get('/my-products', function() use ($db) {
+    $id=$_SESSION['user'];
+    $products = new MyproductsController($db);
+    $products->index($id);
+})->only('auth');
+$route->get('/products/update?id', function() use ($db) {
+    $id=$_POST['id'];
+    $products = new MyproductsController($db);
+    $products->UpdateView($id);
+})->only('auth');

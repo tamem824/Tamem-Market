@@ -4,11 +4,9 @@
 
 <main>
     <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
-        <h1 class="text-2xl font-bold mb-6">جميع المنتجات</h1>
+        <h1 class="text-2xl font-bold mb-6">All Products</h1>
 
-        <p class="mb-6">
-            <a href="/products" class="text-blue-500 underline">عودة إلى المنتجات...</a>
-        </p>
+
 
         <table class="min-w-full">
             <thead>

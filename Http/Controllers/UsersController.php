@@ -50,6 +50,8 @@ class UsersController extends BaseController
         try {
             $this->DB->insert('users', $userData);
             $_SESSION['message'] = "User update successfully.";
+            $_SESSION['name']=$fullName;
+            $_SESSION['user-id']=$userData['id'];
             $this->redirect('/');
         } catch (ValidationException $e) {
             echo "Error registering user: " . $e->getMessage();
@@ -64,7 +66,7 @@ class UsersController extends BaseController
         try {
             $user = $this->DB->query("SELECT * FROM users WHERE email = ?", [$email])->fetch();
             if ($user && password_verify($password, $user['password'])) {
-                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user-id'] = $user['id'];
                 $this->redirect('/');
             } else {
                 echo "Invalid email or password.";
@@ -142,6 +144,6 @@ class UsersController extends BaseController
 
     public function isUserLoggedIn(): bool
     {
-        return isset($_SESSION['user_id']);
+        return isset($_SESSION['user-id']);
     }
 }
