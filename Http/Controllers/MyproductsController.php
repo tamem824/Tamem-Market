@@ -3,6 +3,7 @@
 namespace Http\Controllers;
 
 use CORE\BaseController;
+use PDO;
 
 class MyproductsController extends BaseController
 {
@@ -15,14 +16,14 @@ class MyproductsController extends BaseController
     {
 
         if ($id) {
-            $statement = $this->DB->query("SELECT * FROM products WHERE id = ?", [$id]);
-            $products = $statement->fetch();
+            $statement = $this->DB->query("SELECT * FROM products WHERE user_id = ?", [$id]);
+            $products = $statement->fetchAll();
 
-            if ($products) {
-                $this->view('products/UserProducts.view.php', ['products' => $products]);
-                return;
-            }
-        }}
+            $this->view('products/UserProducts.view.php',
+                ['products' => $products]);
+            return;
+        }
+    }
 
 
 
@@ -61,9 +62,10 @@ class MyproductsController extends BaseController
 
 
                 $updatedData = [
-                    'name' => $_POST['name'],
+                    'full-name' => $_POST['name'],
                     'description' => $_POST['description'],
                     'price' => $_POST['price'],
+                    'user_id'=>$_SESSION['user-id']
                 ];
 
                 try {
@@ -92,21 +94,26 @@ class MyproductsController extends BaseController
             }
 
 
-            private
-            function isProductOwner($productId): bool
-            {
+    private function isProductOwner($productId): bool {
 
-                $result = $this->DB->query("SELECT user_id FROM products WHERE id = ?", [$productId]);
-                return isset($result) && $result['user_id'] === $_SESSION['user_id'];
-            }
-
-    public function UpdateView($id): void
-
-    {
-        $this->DB->query("SELECT * FROM products WHERE id= ?");
-        $product=$this->DB->fetch();
-        $this->view('products\ProductsSetting.view.php');
+        $result = $this->DB->query("SELECT user_id FROM products WHERE id = ?", [$productId])->fetch(PDO::FETCH_ASSOC);
+        return $result && $result['user_id'] === $_SESSION['user-id'];
     }
+
+    public function UpdateView($id): void {
+        $statement = $this->DB->query("SELECT * FROM products WHERE id = ?", [$id]);
+        $product = $statement->fetch();
+
+        if (!$product) {
+            echo "Product not found.";
+            return;
+        }
+
+        $this->view('products/ProductsSetting.view.php', [
+            'product' => $product
+        ]);
+    }
+
 
 
 }

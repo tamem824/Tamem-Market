@@ -1,11 +1,18 @@
 <?php
 
+use JetBrains\PhpStorm\NoReturn;
+
 function Dd($key)
 {
     echo '<pre>';
     var_dump($key);
     echo '</pre>';
     die();
+}
+ #[NoReturn] function redirect($Path)
+{
+    header("Location: {$Path}");
+    exit();
 }
 
 function CheckUrl($Uri): bool

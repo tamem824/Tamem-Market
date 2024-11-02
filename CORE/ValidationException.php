@@ -6,8 +6,8 @@ use Exception;
 
 class ValidationException extends Exception
 {
-    public  array $errors;
-    public  array $old;
+    public array $errors = []; // Initialize as empty array
+    public array $old = [];    // Initialize as empty array
 
     /**
      * @throws ValidationException

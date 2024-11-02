@@ -14,6 +14,7 @@ $route->get('/', function() use ($db) {
     $home = new ProductsController($db);
     $home->showAll();
 });
+
 $route->get('/about', function() {
     $home = new AboutController();
     $home->index();
@@ -28,6 +29,7 @@ $route->post('/login', function() use ($db) {
     $login = new UsersController($db);
     $login->login();
 })->only('guest');
+
 $route->get('/login', function() use ($db) {
     $login = new UsersController($db);
     $login->ShowLogin();
@@ -37,10 +39,12 @@ $route->post('/register', function() use ($db) {
     $register = new UsersController($db);
     $register->register();
 })->only('guest');
+
 $route->get('/register', function() use ($db) {
     $register = new UsersController($db);
     $register->ViewRegister();
 })->only('guest');
+
 
 $route->get('/products/show', function() use ($db) {
 
@@ -48,16 +52,31 @@ $route->get('/products/show', function() use ($db) {
 
     $products->showAll();});
 
+
 $route->post('/logout', function() use ($db) {
     $out = new UsersController($db);
     $out->logout();})->only('auth');
+
+
 $route->get('/my-products', function() use ($db) {
-    $id=$_SESSION['user'];
+    $id=$_SESSION['user-id'];
     $products = new MyproductsController($db);
     $products->index($id);
 })->only('auth');
-$route->get('/products/update?id', function() use ($db) {
-    $id=$_POST['id'];
+
+$route->get('/products/update', function() use ($db) {
+    $id = $_GET['id'];
     $products = new MyproductsController($db);
     $products->UpdateView($id);
+})->only('auth');
+
+$route->post('/products/update', function() use ($db) {
+    if (isset($_POST['id']) && is_numeric($_POST['id'])) {
+        $id = (int) $_POST['id']; // Cast to integer for safety
+        $products = new MyproductsController($db);
+        $products->edit($id);
+    } else {
+        header("Location: /products/show");
+        exit;
+    }
 })->only('auth');
