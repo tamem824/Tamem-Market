@@ -68,7 +68,7 @@ class Database
         $this->query($query, $params);
     }
 
-    public function delete($table, $conditions)
+    protected function delete($table, $conditions)
     {
         $where = '';
         foreach ($conditions as $column => $value) {

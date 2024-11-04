@@ -53,9 +53,12 @@ $route->get('/products/show', function() use ($db) {
     $products->showAll();});
 
 
-$route->post('/logout', function() use ($db) {
-    $out = new UsersController($db);
-    $out->logout();})->only('auth');
+
+
+$route->post('/log-out', function() use ($db) {
+    $userController = new UsersController($db);
+    $userController->logout();
+})->only('auth');
 
 
 $route->get('/my-products', function() use ($db) {
@@ -79,4 +82,14 @@ $route->post('/products/update', function() use ($db) {
         header("Location: /products/show");
         exit;
     }
+})->only('auth');
+$route->get('/products/create', function() use ($db) {
+
+    $products = new MyproductsController($db);
+    $products->createView();
+})->only('auth');
+$route->post('/products/create', function() use ($db) {
+
+    $products = new MyproductsController($db);
+    $products->add();
 })->only('auth');

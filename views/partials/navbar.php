@@ -12,8 +12,7 @@
                         <a href="/products/show" class="<?= CheckUrl('/products') ? 'bg-gray-900 text-white' : 'text-gray-300' ?> hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Products</a>
                         <?php if (isset($_SESSION['user-id'])): ?>
                             <a href="/my-products" class="<?= CheckUrl('/my-products') ? 'bg-gray-900 text-white' : 'text-gray-300' ?> hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">My Products</a>
-                            <!-- Update Profile Button -->
-                            <a href="/update-profile" class="<?= CheckUrl('/update-profile') ? 'bg-gray-900 text-white' : 'text-gray-300' ?> hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Update Profile</a>
+
                         <?php endif; ?>
                     </div>
                 </div>
@@ -21,7 +20,7 @@
             <div class="hidden md:block">
                 <div class="ml-4 flex items-center md:ml-6">
                     <?php if (isset($_SESSION['user-id'])): ?>
-                        <form method="POST" action="/logout" aria-label="Logout">
+                        <form method="POST" action="/log-out" aria-label="Logout">
                             <input type="hidden" name="_method" value="DELETE"/>
                             <button class="text-white px-3 py-2 rounded-md text-sm font-medium">Log Out</button>
                         </form>

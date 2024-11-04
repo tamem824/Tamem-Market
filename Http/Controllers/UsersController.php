@@ -78,10 +78,11 @@ class UsersController extends BaseController
 
     public function logout(): void
     {
+        $_SESSION['message'] = 'log-out successfully';
         session_destroy();
-        $_SESSION['message']='log-out successfully';
-        $this->redirect('/');
+        $this->redirect('/home');
     }
+
 
     public function showProfile(): void
     {

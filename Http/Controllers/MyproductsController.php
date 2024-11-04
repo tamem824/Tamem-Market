@@ -30,54 +30,70 @@ class MyproductsController extends BaseController
             function add(): void
             {
 
-                if (!$this->isUserLoggedIn()) {
-                    echo "You must be logged in to add a product.";
-                    return;
-                }
+
 
 
                 $productData = [
-                    'name' => $_POST['name'],
+                    'full_name' => $_POST['name'],
                     'description' => $_POST['description'],
                     'price' => $_POST['price'],
-                    'user_id' => $_SESSION['user_id'],
+                    'user_id' => $_SESSION['user-id'],
                 ];
 
                 try {
                     $this->DB->insert('products', $productData);
                     echo "Product added successfully.";
+                    $this->redirect('/my-products');
                 } catch (Exception $e) {
                     echo "Error adding product: " . $e->getMessage();
                 }
             }
 
-            public
-            function edit($id): void
-            {
+    public function edit($id): void
+    {
+        // Authorization Check
+        if (!$this->isProductOwner($id)) {
+            echo "You are not authorized to edit this product.";
+            return;
+        }
 
-                if (!$this->isProductOwner($id)) {
-                    echo "You are not authorized to edit this product.";
-                    return;
-                }
+        // Input Validation and Sanitization
+        $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $description = filter_input(INPUT_POST, 'description', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $price = filter_var($_POST['price'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
 
 
-                $updatedData = [
-                    'full-name' => $_POST['name'],
-                    'description' => $_POST['description'],
-                    'price' => $_POST['price'],
-                    'user_id'=>$_SESSION['user-id']
-                ];
 
-                try {
-                    $this->DB->update('products', $updatedData, ['id' => $id]);
-                    echo "Product updated successfully.";
-                } catch (Exception $e) {
-                    echo "Error updating product: " . $e->getMessage();
-                }
-            }
+        // Validate Inputs
+    if (empty($name) || empty($description) || $price === false || $price <= 0) {
+        echo "Invalid input data. Please ensure all fields are filled out correctly and the price is a positive number.";
+        return;
+    }
 
-            public
-            function delete($id): void
+    $userId = $_SESSION['user-id'];
+
+    // Prepare Update Data
+    $updateData = [
+        'full-name' => $name,
+        'description' => $description,
+        'price' => $price,
+        'user_id' => $userId
+    ];
+
+    // Database Update with Error Handling
+    try {
+        $this->DB->update('products', $updateData, ['id' => $id]);
+        echo "Product updated successfully.";
+
+        // Redirect to product details page
+        $this->redirect('/product/show?id=' . $id);
+    } catch (Exception $e) {
+        echo "Error updating product: " . $e->getMessage();
+        // Log the error for debugging
+        error_log("Error updating product: " . $e->getMessage());
+    }
+}
+    public function delete($id): void
             {
 
                 if (!$this->isProductOwner($id)) {
@@ -114,6 +130,10 @@ class MyproductsController extends BaseController
         ]);
     }
 
+    public function createView()
+    {
+        $this->view('products/AddProducts.view.php');
+    }
 
 
 }
