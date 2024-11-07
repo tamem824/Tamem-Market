@@ -9,19 +9,18 @@
                     <div class="ml-10 flex items-baseline space-x-4">
                         <a href="/" class="<?= CheckUrl('/') ? 'bg-gray-900 text-white' : 'text-gray-300' ?> hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Home</a>
                         <a href="/about" class="<?= CheckUrl('/about') ? 'bg-gray-900 text-white' : 'text-gray-300' ?> hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">About</a>
-                        <a href="/products/show" class="<?= CheckUrl('/products') ? 'bg-gray-900 text-white' : 'text-gray-300' ?> hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Products</a>
-                        <?php if (isset($_SESSION['user-id'])): ?>
+                        <a href="/products/show" class="<?= CheckUrl('/products/show') ? 'bg-gray-900 text-white' : 'text-gray-300' ?> hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Products</a>
+                        <?php if (isset($_SESSION['user_id'])): ?>
                             <a href="/my-products" class="<?= CheckUrl('/my-products') ? 'bg-gray-900 text-white' : 'text-gray-300' ?> hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">My Products</a>
-
                         <?php endif; ?>
                     </div>
                 </div>
             </div>
             <div class="hidden md:block">
                 <div class="ml-4 flex items-center md:ml-6">
-                    <?php if (isset($_SESSION['user-id'])): ?>
+                    <?php if (isset($_SESSION['user_id'])): ?>
                         <form method="POST" action="/log-out" aria-label="Logout">
-                            <input type="hidden" name="_method" value="DELETE"/>
+                            <input type="hidden" name="log-out" value="DELETE"/>
                             <button class="text-white px-3 py-2 rounded-md text-sm font-medium">Log Out</button>
                         </form>
                     <?php else: ?>

@@ -27,27 +27,58 @@ class MyproductsController extends BaseController
 
 
 
-            function add(): void
-            {
+    function add(): void
+    {
+        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = BASEPATH('uploads/');
+            $fileName = basename($_FILES['image']['name']);
+            $targetFilePath = $uploadDir . $fileName;
 
-
-
-
-                $productData = [
-                    'full_name' => $_POST['name'],
-                    'description' => $_POST['description'],
-                    'price' => $_POST['price'],
-                    'user_id' => $_SESSION['user-id'],
-                ];
-
-                try {
-                    $this->DB->insert('products', $productData);
-                    echo "Product added successfully.";
-                    $this->redirect('/my-products');
-                } catch (Exception $e) {
-                    echo "Error adding product: " . $e->getMessage();
-                }
+            // Ensure the uploads directory exists
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
             }
+
+            // Check if file with the same name exists, and if so, rename it
+            $fileInfo = pathinfo($fileName);
+            $baseName = $fileInfo['filename'];
+            $extension = $fileInfo['extension'];
+            $counter = 1;
+
+            // Generate a unique file name if the file already exists
+            while (file_exists($targetFilePath)) {
+                $fileName = $baseName . '_' . $counter . '.' . $extension;
+                $targetFilePath = $uploadDir . $fileName;
+                $counter++;
+            }
+
+            // Move uploaded file to the target directory
+            if (!move_uploaded_file($_FILES['image']['tmp_name'], $targetFilePath)) {
+                echo "Error uploading image.";
+                return;
+            }
+
+            // Save the relative path to the image in the database
+            $productData = [
+                'full_name' => $_POST['name'],
+                'description' => $_POST['description'],
+                'price' => $_POST['price'],
+                'user_id' => $_SESSION['user_id'],
+                'image' => 'uploads/' . $fileName
+            ];
+
+            try {
+                $this->DB->insert('products', $productData);
+                echo "Product added successfully.";
+                $this->redirect('/my-products');
+            } catch (Exception $e) {
+                echo "Error adding product: " . $e->getMessage();
+            }
+        } else {
+            echo "Please upload an image.";
+        }
+    }
+
 
     public function edit($id): void
     {
@@ -70,7 +101,7 @@ class MyproductsController extends BaseController
         return;
     }
 
-    $userId = $_SESSION['user-id'];
+    $userId = $_SESSION['user_id'];
 
     // Prepare Update Data
     $updateData = [
@@ -113,7 +144,7 @@ class MyproductsController extends BaseController
     private function isProductOwner($productId): bool {
 
         $result = $this->DB->query("SELECT user_id FROM products WHERE id = ?", [$productId])->fetch(PDO::FETCH_ASSOC);
-        return $result && $result['user_id'] === $_SESSION['user-id'];
+        return $result && $result['user_id'] === $_SESSION['user_id'];
     }
 
     public function UpdateView($id): void {

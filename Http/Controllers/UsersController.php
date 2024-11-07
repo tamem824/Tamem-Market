@@ -32,12 +32,14 @@ class UsersController extends BaseController
         $password = $_POST['password'];
 
         if (!Validator::string($fullName, 2, 50)) {
-            echo "Full name must be between 2 and 50 characters.";
+            $_SESSION['message'] = "Full name must be between 2 and 50 characters.";
+            $this->redirect('/register');
             return;
         }
 
         if (!Validator::email($email)) {
-            echo "Invalid email format.";
+            $_SESSION['message'] = "Invalid email format.";
+            $this->redirect('/register');
             return;
         }
 
@@ -49,12 +51,14 @@ class UsersController extends BaseController
 
         try {
             $this->DB->insert('users', $userData);
-            $_SESSION['message'] = "User update successfully.";
-            $_SESSION['name']=$fullName;
-            $_SESSION['user-id']=$userData['id'];
+            $_SESSION['message'] = "User registered successfully.";
+            $_SESSION['name'] = $fullName;
+            $_SESSION['user_id'] = $userData['id'];
+
             $this->redirect('/');
         } catch (ValidationException $e) {
-            echo "Error registering user: " . $e->getMessage();
+            $_SESSION['message'] = "Error registering user: " . $e->getMessage();
+            $this->redirect('/register');
         }
     }
 
@@ -66,28 +70,41 @@ class UsersController extends BaseController
         try {
             $user = $this->DB->query("SELECT * FROM users WHERE email = ?", [$email])->fetch();
             if ($user && password_verify($password, $user['password'])) {
-                $_SESSION['user-id'] = $user['id'];
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['message'] = "Logged in successfully.";
                 $this->redirect('/');
             } else {
-                echo "Invalid email or password.";
+                $_SESSION['message'] = "Invalid email or password.";
+                $this->redirect('/login');
             }
         } catch (ValidationException $e) {
-            echo "Error during login: " . $e->getMessage();
+            $_SESSION['message'] = "Error during login: " . $e->getMessage();
+            $this->redirect('/login');
         }
     }
 
     public function logout(): void
     {
-        $_SESSION['message'] = 'log-out successfully';
+        // التحقق من حالة الجلسة وبدء جلسة إذا لم تكن مهيئة
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $_SESSION['message'] = 'LOGOUT SUCCESSFUL';
+
+        session_unset();
+
         session_destroy();
-        $this->redirect('/home');
+
+        $this->redirect('/');
     }
 
 
     public function showProfile(): void
     {
         if (!$this->isUserLoggedIn()) {
-            echo "You must be logged in to view your profile.";
+            $_SESSION['message'] = "You must be logged in to view your profile.";
+            $this->redirect('/login');
             return;
         }
 
@@ -95,56 +112,13 @@ class UsersController extends BaseController
             $user = $this->DB->query("SELECT * FROM users WHERE id = ?", [$_SESSION['user_id']])->fetch();
             $this->view('session/profile.view.php', ['user' => $user]);
         } catch (ValidationException $e) {
-            echo "Error fetching user profile: " . $e->getMessage();
-        }
-    }
-
-    public function updateProfile(): void
-    {
-        if (!$this->isUserLoggedIn()) {
-            echo "You must be logged in to update your profile.";
-            return;
-        }
-
-        $username = $_POST['username'];
-        $email = $_POST['email'];
-
-        if (!Validator::string($username, 2, 50)) {
-            echo "Username must be between 2 and 50 characters.";
-            return;
-        }
-
-        if (!Validator::email($email)) {
-            echo "Invalid email format.";
-            return;
-        }
-
-        $updatedData = [
-            'full-name' => $username,
-            'email' => $email,
-        ];
-
-        if (!empty($_POST['password'])) {
-            $updatedData['password'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
-        }
-
-        try {
-            $this->DB->update('users', $updatedData, ['id' => $_SESSION['user_id']]);
-            $_SESSION['message'] = "User update successfully.";
+            $_SESSION['message'] = "Error fetching user profile: " . $e->getMessage();
             $this->redirect('/');
-
-
-            $_SESSION['user']=[
-                'email'=>$email,
-                'full-name'=>$username,
-            ];
-        } catch (ValidationException $e) {
-            echo "Error updating profile: " . $e->getMessage();
         }
     }
 
     public function isUserLoggedIn(): bool
     {
-        return isset($_SESSION['user-id']);
+        return isset($_SESSION['user_id']);
     }
 }
